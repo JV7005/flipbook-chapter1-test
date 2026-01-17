@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>British India Album</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<script src="jquery.min.js"></script>
+<script src="turn.min.js"></script>
+
+
+</head>
+
+<body>
+
+<div class="navbar">
+  <button id="prev" class="navbtn">⟨</button>
+  <span>Page <strong id="cur">Cover</strong> / <span id="tot">—</span></span>
+  <button id="next" class="navbtn">⟩</button>
+  <button id="first" class="navbtn">« First</button>
+  <button id="last" class="navbtn">Last »</button>
+  <button id="quit">Exit</button>
+</div>
+
+<div class="audio-bar">
+  <button id="audioToggle">🎵 Play Music</button>
+</div>
+
+<audio id="bgm" preload="metadata">
+  <source src="audio/bgm_ch1_01.mp3" type="audio/mpeg">
+</audio>
+
+
+
+<button id="btnPrev" class="nav-btn">‹</button>
+<button id="btnNext" class="nav-btn">›</button>
+
+
+
+
+<div id="zoomStage">
+  <div id="flipbook"></div>
+</div>
+
+
+
+
+<div class="zoom-bar">
+  <button id="zoomOut">–</button>
+  <button id="zoomReset">100%</button>
+  <button id="zoomIn">+</button>
+</div>
+
+
+
+
+
+<script>
+(function(){
+
+  const TOTAL_PAGES = 55;
+  const A4_RATIO = 1.4142;
+
+  // ---------- BUILD PAGES ----------
+  function srcFor(i){
+    return 'images/page-' + String(i).padStart(3,'0') + '.jpg';
+  }
+
+  for(let i=1;i<=TOTAL_PAGES;i++){
+    $('#flipbook').append(`<div><img src="${srcFor(i)}"></div>`);
+  }
+
+  // ---------- SIZE ----------
+  function calcSize(){
+    let h = Math.min(window.innerHeight * 0.9, 1400);
+    let w = h / A4_RATIO;
+    if(w > window.innerWidth * 0.95){
+      w = window.innerWidth * 0.95;
+      h = w * A4_RATIO;
+    }
+    return { w: Math.round(w), h: Math.round(h) };
+  }
+
+  function init(){
+    const s = calcSize();
+    $('#flipbook').turn({
+      width: s.w,
+      height: s.h,
+      display: 'single',
+      autoCenter: true,
+      gradients: false
+    });
+    document.getElementById('tot').textContent = TOTAL_PAGES - 1;
+    updateNav();
+  }
+
+  function resize(){
+    const s = calcSize();
+    $('#flipbook').turn('size', s.w, s.h);
+  }
+
+  $(init);
+  window.addEventListener('resize', resize);
+
+  // ---------- NAVIGATION ----------
+  const flip = () => $('#flipbook');
+  const cur   = document.getElementById('cur');
+  const prev  = document.getElementById('prev');
+  const next  = document.getElementById('next');
+  const first = document.getElementById('first');
+  const last  = document.getElementById('last');
+
+  function page(){ return flip().turn('page'); }
+  function set(p){ flip().turn('page', p); }
+
+  function updateNav(){
+    const p = page();
+    cur.textContent = p === 1 ? 'Cover' : p - 1;
+    prev.disabled = first.disabled = (p === 1);
+    next.disabled = last.disabled  = (p === TOTAL_PAGES);
+    $('#btnPrev').toggleClass('disabled', p === 1);
+    $('#btnNext').toggleClass('disabled', p === TOTAL_PAGES);
+  }
+
+  prev.onclick  = () => set(page() - 1);
+  next.onclick  = () => set(page() + 1);
+  first.onclick = () => set(1);
+  last.onclick  = () => set(TOTAL_PAGES);
+
+  $('#btnPrev').click(() => flip().turn('previous'));
+  $('#btnNext').click(() => flip().turn('next'));
+
+  // ---------- ZOOM (Option A) ----------
+  let zoomLevel = 1.0;
+  const ZOOM_STEP = 0.1;
+  const ZOOM_MIN  = 1.0;
+  const ZOOM_MAX  = 1.6;
+  const zoomTarget = document.getElementById('flipbook');
+
+  function applyZoom(){
+    zoomTarget.style.transform = `scale(${zoomLevel})`;
+  }
+
+  document.getElementById('zoomIn').onclick = () => {
+    zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(2));
+    applyZoom();
+  };
+
+  document.getElementById('zoomOut').onclick = () => {
+    zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(2));
+    applyZoom();
+  };
+
+  document.getElementById('zoomReset').onclick = () => {
+    zoomLevel = 1.0;
+    applyZoom();
+  };
+
+  // reset zoom on page turn
+  $('#flipbook').on('turning turned', function(){
+    zoomLevel = 1.0;
+    applyZoom();
+    updateNav();
+  });
+
+
+document.getElementById('quit').onclick = () => {
+  document.body.innerHTML = `
+    <div style="
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:system-ui, Arial, sans-serif;
+      background:var(--album-bg);
+      color:#555;
+      text-align:center;
+    ">
+      <div>
+        <p style="font-size:18px; margin-bottom:12px;">
+          Thank you for viewing this album.
+        </p>
+        <p style="font-size:14px;">
+          You may now close this window.
+        </p>
+      </div>
+    </div>`;
+};
+
+
+const bgm = document.getElementById('bgm');
+const musicBtn = document.getElementById('playMusic');
+
+let isPlaying = false;
+
+musicBtn.onclick = () => {
+  if (!isPlaying) {
+    bgm.play().then(() => {
+      musicBtn.textContent = '⏸ Pause Music';
+      isPlaying = true;
+    }).catch(() => {
+      // Browser blocked playback – do nothing noisy
+      console.log('Audio blocked by browser.');
+    });
+  } else {
+    bgm.pause();
+    musicBtn.textContent = '🎵 Play Music';
+    isPlaying = false;
+  }
+};
+
+
+
+
+
+
+
+
+})();
+
+
+</script>
+
+</body>
+</html>
