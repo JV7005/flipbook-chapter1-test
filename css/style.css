@@ -1,0 +1,120 @@
+:root{
+  /* Page background palette – change later in Theme step */
+  --album-bg: #FEE3C6; /* warm parchment */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--album-bg);
+  font: 16px/1.4 system-ui, Segoe UI, Arial, sans-serif;
+}
+  
+  /* ===== Page Flip Controls : Final ===== */
+
+.nav-btn{
+  background: red !important;
+  position: fixed;
+  bottom: 28px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(0,0,0,0.55);
+  font-size: 36px;
+  line-height: 42px;
+  cursor: pointer;
+  z-index: 9999;
+  user-select: none;
+}
+
+/* Left = Previous */
+#btnPrev{
+  left: 28px;
+}
+
+/* Right = Next */
+#btnNext{
+  right: 28px;
+}
+
+/* Hover */
+.nav-btn:hover{
+  color: rgba(0,0,0,0.85);
+}
+
+/* Disabled state */
+.nav-btn.disabled{
+  opacity: 0.25;
+  pointer-events: none;
+}
+  
+
+#wrap {
+  max-width: 95vw;
+  margin: 12px auto 24px;
+}
+
+#flipbook { margin: 0 auto; }
+
+
+#flipbook img {
+  width: 100%;
+  height: auto;
+  display: block;
+  
+}
+
+#flipbook {
+  width: 90vw;
+  height: 90vh;
+}
+
+button {
+  font-size: 18px;
+  padding: 6px 14px;
+  margin: 6px;
+  cursor: pointer;
+  background: #d4c1a3;
+  border: 1px solid #866;
+  border-radius: 4px;
+}
+button:hover { background: #eedac0; }
+
+.page,
+.turn-page {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+#zoomStage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  height: calc(100vh - 140px); /* adjust once, then freeze */
+
+}
+
+#flipbook{
+  transform-origin: center center;
+}
+
+.zoom-bar{
+  position: sticky;
+  bottom: 0;
+  text-align: center;
+  padding: 6px 0;
+  background: rgba(255,255,255,0.6);
+
+}
+
+.zoom-bar button{
+  padding: 4px 10px;
+  font-size: 14px;
+  margin: 0 3px;
+
+}
